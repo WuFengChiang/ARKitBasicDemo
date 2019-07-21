@@ -30,15 +30,33 @@ class ViewController: UIViewController {
         self.arScnView.session.pause()
     }
     
-    private func hideBoxNode() {
-        for childNode in self.arScnView.scene.rootNode.childNodes {
-            if let nodeName = childNode.name, nodeName == "box" {
-                childNode.isHidden = true
-            }
-        }
+    @IBAction func tapGRAction(_ sender: UITapGestureRecognizer) {
+        let location = sender.location(in: self.arScnView)
+        let hitTestResult = self.arScnView.hitTest(location).first
+        let aBoxNode = getBoxClone()
+        aBoxNode?.isHidden = false
+        aBoxNode?.position = hitTestResult!.localCoordinates
+        self.arScnView.scene.rootNode.addChildNode(aBoxNode!)
     }
     
     // MARK: -
+    
+    private func hideBoxNode() {
+        getBoxNode()?.isHidden = true
+    }
+    
+    private func getBoxClone() -> SCNNode? {
+        return getBoxNode()?.clone()
+    }
+    
+    fileprivate func getBoxNode() -> SCNNode? {
+        for childNode in self.arScnView.scene.rootNode.childNodes {
+            if let nodeName = childNode.name, nodeName == "box" {
+                return childNode
+            }
+        }
+        return nil
+    }
     
     fileprivate func setupArScnView() {
         arScnView.debugOptions = [.showWorldOrigin, .showFeaturePoints]
