@@ -21,12 +21,21 @@ class ViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        hideBoxNode()
         self.arScnView.session.run(ARWorldTrackingConfiguration(), options: [.resetTracking])
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         self.arScnView.session.pause()
+    }
+    
+    private func hideBoxNode() {
+        for childNode in self.arScnView.scene.rootNode.childNodes {
+            if let nodeName = childNode.name, nodeName == "box" {
+                childNode.isHidden = true
+            }
+        }
     }
     
     // MARK: -
