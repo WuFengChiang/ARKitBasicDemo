@@ -43,7 +43,20 @@ class ViewController: UIViewController {
     
     private func didRemoveTouchedBoxNode(_ hitTestResult: SCNHitTestResult) -> Bool {
         if hitTestResult.node.name == "box" {
-            hitTestResult.node.removeFromParentNode()
+            let eulerAngles = hitTestResult.node.eulerAngles
+            let contents = hitTestResult.node.geometry?.firstMaterial?.diffuse.contents
+            
+            SCNTransaction.begin()
+            hitTestResult.node.eulerAngles = SCNVector3Make(0, Float.pi, 0)
+            hitTestResult.node.geometry?.firstMaterial?.diffuse.contents = UIColor.clear
+            SCNTransaction.animationDuration = 1.0
+            SCNTransaction.completionBlock = {
+                hitTestResult.node.removeFromParentNode()
+                hitTestResult.node.eulerAngles = eulerAngles
+                hitTestResult.node.geometry?.firstMaterial?.diffuse.contents = contents
+            }
+            SCNTransaction.commit()
+            
             return true
         }
         return false
