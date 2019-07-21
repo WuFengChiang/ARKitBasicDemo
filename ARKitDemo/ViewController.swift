@@ -32,14 +32,29 @@ class ViewController: UIViewController {
     
     @IBAction func tapGRAction(_ sender: UITapGestureRecognizer) {
         let location = sender.location(in: self.arScnView)
-        let hitTestResult = self.arScnView.hitTest(location).first
-        let aBoxNode = getBoxClone()
-        aBoxNode?.isHidden = false
-        aBoxNode?.position = hitTestResult!.localCoordinates
-        self.arScnView.scene.rootNode.addChildNode(aBoxNode!)
+        guard let hitTestResult = self.arScnView.hitTest(location).first else {
+            return
+        }
+        if didRemoveTouchedBoxNode(hitTestResult) { return }
+        addNewBoxNode(hitTestResult)
     }
     
     // MARK: -
+    
+    private func didRemoveTouchedBoxNode(_ hitTestResult: SCNHitTestResult) -> Bool {
+        if hitTestResult.node.name == "box" {
+            hitTestResult.node.removeFromParentNode()
+            return true
+        }
+        return false
+    }
+    
+    fileprivate func addNewBoxNode(_ hitTestResult: SCNHitTestResult) {
+        let aBoxNode = getBoxClone()
+        aBoxNode?.isHidden = false
+        aBoxNode?.position = hitTestResult.localCoordinates
+        self.arScnView.scene.rootNode.addChildNode(aBoxNode!)
+    }
     
     private func hideBoxNode() {
         getBoxNode()?.isHidden = true
