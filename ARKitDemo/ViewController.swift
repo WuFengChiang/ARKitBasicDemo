@@ -30,6 +30,8 @@ class ViewController: UIViewController {
         self.arScnView.session.pause()
     }
     
+    // MARK: - IBAction functions
+    
     @IBAction func tapGRAction(_ sender: UITapGestureRecognizer) {
         let location = sender.location(in: self.arScnView)
         guard let hitTestResult = self.arScnView.hitTest(location).first else {
@@ -63,21 +65,25 @@ class ViewController: UIViewController {
     }
     
     fileprivate func addNewBoxNode(_ hitTestResult: SCNHitTestResult) {
-        let aBoxNode = getBoxClone()
+        let aBoxNode = getBoxUnsharedClone()
         aBoxNode?.isHidden = false
         aBoxNode?.position = hitTestResult.localCoordinates
         self.arScnView.scene.rootNode.addChildNode(aBoxNode!)
     }
     
     private func hideBoxNode() {
-        getBoxNode()?.isHidden = true
+        findBoxNode()?.isHidden = true
     }
     
-    private func getBoxClone() -> SCNNode? {
-        return getBoxNode()?.clone()
+    private func getBoxUnsharedClone() -> SCNNode? {
+        let boxNode = findBoxNode()
+        let newBoxNode = boxNode?.clone()
+        newBoxNode?.geometry = boxNode?.geometry?.copy() as? SCNGeometry
+        newBoxNode?.geometry?.materials = [boxNode?.geometry?.materials.first?.copy() as? SCNMaterial] as! [SCNMaterial]
+        return newBoxNode
     }
     
-    fileprivate func getBoxNode() -> SCNNode? {
+    fileprivate func findBoxNode() -> SCNNode? {
         for childNode in self.arScnView.scene.rootNode.childNodes {
             if let nodeName = childNode.name, nodeName == "box" {
                 return childNode
